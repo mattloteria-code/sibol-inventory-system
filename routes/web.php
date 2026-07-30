@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\InventoryController;
 
 Route::get('/', function () {
     return redirect()->route('products.index');
@@ -26,3 +27,11 @@ Route::prefix('orders/cart')->name('orders.cart.')->group(function () {
 
 Route::resource('orders', OrderController::class);
 Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+
+Route::prefix('inventory')->name('inventory.')->group(function () {
+    Route::get('/', [InventoryController::class, 'index'])->name('index');
+    Route::get('/restock', [InventoryController::class, 'restockForm'])->name('restock.form');
+    Route::post('/restock', [InventoryController::class, 'restock'])->name('restock');
+    Route::get('/movements', [InventoryController::class, 'movements'])->name('movements');
+    Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('low-stock');
+});
