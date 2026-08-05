@@ -8,6 +8,8 @@ class Ingredient extends Model
 {
     protected $fillable = [
         'name',
+        'unit_type',
+        'preferred_unit',
         'base_unit',
         'current_stock',
         'current_price_per_base_unit',
@@ -16,7 +18,7 @@ class Ingredient extends Model
     ];
 
     protected $casts = [
-        'current_stock' => 'decimal;3',
+        'current_stock' => 'decimal:3',
         'current_price_per_base_unit' => 'decimal:4',
         'is_active' => 'boolean',
     ];

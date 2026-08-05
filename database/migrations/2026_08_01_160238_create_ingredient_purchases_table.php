@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Ingredient;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -25,6 +24,7 @@ return new class extends Migration
             $table->decimal('price_per_base_unit', 12, 4);
             $table->decimal('remaining_quantity', 12, 3);
             $table->string('supplier')->nullable();
+            $table->date('purchase_date');
             $table->text('notes')->nullable();
 
             $table->timestamps();

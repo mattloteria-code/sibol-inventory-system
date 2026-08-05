@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\IngredientController;
 
 Route::get('/', function () {
     return redirect()->route('products.index');
@@ -35,3 +36,10 @@ Route::prefix('inventory')->name('inventory.')->group(function () {
     Route::get('/movements', [InventoryController::class, 'movements'])->name('movements');
     Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('low-stock');
 });
+
+Route::prefix('ingredients/purchase')->name('ingredients.purchase.')->group(function (){
+    Route::get('/', [IngredientController::class, 'purchaseForm'])->name('form');
+    Route::post('/', [IngredientController::class, 'storePurchase'])->name('store');
+});
+
+Route::resource('ingredients', IngredientController::class);

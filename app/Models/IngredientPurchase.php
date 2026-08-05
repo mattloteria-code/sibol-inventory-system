@@ -25,7 +25,7 @@ class IngredientPurchase extends Model
     ];
 
     protected $casts = [
-        'purchase_unit_quantity' => 'decimal:3',
+        'purchase_unit_quantity' => 'decimal:0',
         'conversion_to_base' => 'decimal:4',
         'unit_price' => 'decimal:2',
         'total_cost' => 'decimal:2',

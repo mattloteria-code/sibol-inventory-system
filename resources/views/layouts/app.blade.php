@@ -18,6 +18,7 @@
                     <a href="{{ route('orders.cart.index') }}" class="hover:text-indigo-200">New Order</a>
                     <a href="{{ route('orders.index') }}" class="hover:text-indigo-200">Orders</a>
                     <a href="{{ route('inventory.index') }}" class="hover:text-indigo-200">Inventory</a>
+                    <a href="{{ route('ingredients.index') }}" class="hover:text-indigo-200">Ingredients</a>
                 </div>
             </div>
         </nav>
