@@ -11,7 +11,6 @@ class Product extends Model
         'name',
         'sku',
         'description',
-        'cost_price',
         'selling_price',
         'stock_quantity',
         'low_stock_threshold',
@@ -19,7 +18,6 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'cost_price' => 'decimal:2',
         'selling_price' => 'decimal:2',
         'is_active' => 'boolean',
     ];
@@ -37,5 +35,10 @@ class Product extends Model
     public function isLowStock(): bool
     {
         return $this->stock_quantity <= $this->low_stock_threshold;
+    }
+
+    public function recipeItems()
+    {
+        return $this->hasMany(ProductIngredient::class);
     }
 }

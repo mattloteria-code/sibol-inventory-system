@@ -21,7 +21,6 @@ class StoreProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:100|unique:products,sku',
             'description' => 'nullable|string',
-            'cost_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
             'low_stock_threshold' => 'required|integer|min:0',

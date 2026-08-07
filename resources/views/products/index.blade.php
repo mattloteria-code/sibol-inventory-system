@@ -52,6 +52,7 @@
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:underline">Delete</button>
                         </form>
+                        <a href="{{ route('products.recipe.edit', $product) }}" class="text-green-600 hover:underline">Recipe</a>
                     </td>
                 </tr>
             @empty
