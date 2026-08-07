@@ -41,4 +41,9 @@ class Product extends Model
     {
         return $this->hasMany(ProductIngredient::class);
     }
+
+    public function productionBatches()
+    {
+        return $this->hasMany(ProductionBatch::class);
+    }
 }

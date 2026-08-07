@@ -44,7 +44,7 @@
                             <span class="ml-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Low</span>
                         @endif
                     </td>
-                    <td class="px-4 py-3">₱{{ number_format($ingredient->current_stock * $ingredient->current_price_per_base_unit, 2) }}</td>
+                    <td class="px-4 py-3">₱{{ number_format($ingredient->total_stock_value, 2) }}</td>
                     <td class="px-4 py-3">
                         @if ($ingredient->is_active)
                             <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Active</span>

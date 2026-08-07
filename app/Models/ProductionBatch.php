@@ -2,9 +2,35 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductionBatch extends Model
 {
-    //
+    use HasFactory;
+
+    protected $fillable = [
+        'product_id',
+        'quantity_produced',
+        'total_cost',
+        'cost_per_unit',
+        'produced_at',
+        'notes',
+    ];
+
+    protected $casts = [
+        'total_cost' => 'decimal:2',
+        'cost_per_unit' => 'decimal:4',
+        'produced_at' => 'datetime',
+    ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function batchIngredients()
+    {
+        return $this->hasMany(ProductionBatchIngredient::class);
+    }
 }

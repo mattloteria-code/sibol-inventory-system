@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\ProductionController;
 
 Route::get('/', function () {
     return redirect()->route('products.index');
@@ -51,3 +52,9 @@ Route::prefix('product/{product}/recipe')->name('products.recipe.')->group(funct
     Route::patch('/{productIngredient}', [RecipeController::class, 'update'])->name('update');
     Route::delete('/{productIngredient}', [RecipeController::class, 'destroy'])->name('destroy');
 });
+
+Route::get('/production', [ProductionController::class, 'index'])->name('production.index');
+Route::get('/production/create', [ProductionController::class, 'selectProduct'])->name('production.create');
+Route::get('/production/create/{product}', [ProductionController::class, 'create'])->name('production.create.form');
+Route::post('/production', [ProductionController::class, 'store'])->name('production.store');
+Route::get('/production/{production}', [ProductionController::class, 'show'])->name('production.show');

@@ -55,7 +55,7 @@ class IngredientController extends Controller
      */
     public function show(Ingredient $ingredient)
     {
-        $purchases = $ingredient->purchases()->latest('purchase_date')->paginate(10);
+        $purchases = $ingredient->purchases()->latest('id')->paginate(10);
         $priceHistory = $ingredient->priceHistory()->latest('changed_at')->take(10)->get();
 
         return view('ingredients.show', compact('ingredient', 'purchases', 'priceHistory'));

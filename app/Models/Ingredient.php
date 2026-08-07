@@ -37,4 +37,12 @@ class Ingredient extends Model
     {
         return $this->current_stock <= $this->low_stock_threshold;
     }
+
+    public function getTotalStockValueAttribute()
+    {
+        return $this->purchases()
+            ->where('remaining_quantity', '>', 0)
+            ->get()
+            ->sum(fn ($purchase) => $purchase->remaining_quantity * $purchase->price_per_base_unit);
+    }
 }
