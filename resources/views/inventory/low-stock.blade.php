@@ -22,7 +22,7 @@
                     <td class="px-4 py-3 text-red-600 font-semibold">{{ $product->stock_quantity }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $product->low_stock_threshold }}</td>
                     <td class="px-4 py-3 text-right">
-                        <a href="{{ route('inventory.restock.form') }}" class="text-indigo-600 hover:underline">Restock</a>
+                        <a href="{{ route('production.index') }}" class="text-indigo-600 hover:underline">Restock</a>
                     </td>
                 </tr>
             @empty

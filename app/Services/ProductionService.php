@@ -37,6 +37,7 @@ class ProductionService
             $batch = ProductionBatch::create([
                 'product_id' => $product->id,
                 'quantity_produced' => $actualQuantityProduced,
+                'remaining_quantity' => $actualQuantityProduced,
                 'total_cost' => 0,
                 'cost_per_unit' => 0,
                 'produced_at' => now(),

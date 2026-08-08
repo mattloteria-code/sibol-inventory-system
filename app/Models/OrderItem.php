@@ -39,4 +39,9 @@ class OrderItem extends Model
     {
         return ($this->unit_price - $this->unit_cost) * $this->quantity;
     }
+
+    public function batchConsumptions()
+    {
+        return $this->hasMany(OrderItemBatch::class);
+    }
 }

@@ -17,6 +17,7 @@
             <tr>
                 <th class="px-4 py-3">Product</th>
                 <th class="px-4 py-3">Quantity</th>
+                <th class="px-4 py-3">Remaining</th>
                 <th class="px-4 py-3">Total Cost</th>
                 <th class="px-4 py-3">Cost/Unit</th>
                 <th class="px-4 py-3">Date</th>
@@ -28,6 +29,9 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 font-medium">{{ $batch->product->name }}</td>
                     <td class="px-4 py-3">{{ $batch->quantity_produced }}</td>
+                    <td class="px-4 py-3 {{ $batch->remaining_quantity <= 0 ? 'text-gray-400' : 'text-green-600 font-medium' }}">
+                        {{ $batch->remaining_quantity }}
+                    </td>
                     <td class="px-4 py-3">₱{{ number_format($batch->total_cost, 2) }}</td>
                     <td class="px-4 py-3">₱{{ number_format($batch->cost_per_unit, 2) }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $batch->produced_at->format('M d, Y') }}</td>

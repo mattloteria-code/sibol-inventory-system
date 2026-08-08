@@ -12,6 +12,7 @@ class ProductionBatch extends Model
     protected $fillable = [
         'product_id',
         'quantity_produced',
+        'remaining_quantity',
         'total_cost',
         'cost_per_unit',
         'produced_at',
@@ -32,5 +33,10 @@ class ProductionBatch extends Model
     public function batchIngredients()
     {
         return $this->hasMany(ProductionBatchIngredient::class);
+    }
+
+    public function saleConsumptions()
+    {
+        return $this->hasMany(OrderItemBatch::class);
     }
 }

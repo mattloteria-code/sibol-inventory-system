@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\StockMovement;
+use App\Services\SaleCostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -112,7 +113,7 @@ class OrderController extends Controller
         //
     }
 
-    public function checkout()
+    public function checkout(SaleCostService $saleCostService)
     {
         $cart = session('cart', []);
         $customerId = session('cart_customer_id');
@@ -125,7 +126,7 @@ class OrderController extends Controller
             return back()->with('error', 'Please select a customer first.');
         }
 
-        $order = DB::transaction(function () use ($cart, $customerId) {
+        $order = DB::transaction(function () use ($cart, $customerId, $saleCostService) {
             // Lock the product rows while we check/update stock, to prevent
             // two simultaneous checkouts from overselling the same stock.
             $products = Product::whereIn('id', array_keys($cart))
@@ -165,19 +166,23 @@ class OrderController extends Controller
                 $quantity = $item['quantity'];
 
                 // Snapshot product details onto the order item
-                OrderItem::create([
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'product_name' => $product->name,
                     'quantity' => $quantity,
                     'unit_price' => $product->selling_price,
-                    'unit_cost' => $product->cost_price,
+                    'unit_cost' => 0,
                 ]);
 
-                // Deduct stock
+                $totalCost = $saleCostService->consumeForsale($product, $orderItem, $quantity);
+
+                $orderItem->update([
+                    'unit_cost' => $totalCost / $quantity,
+                ]);
+
                 $product->decrement('stock_quantity', $quantity);
 
-                // Log the stock movement
                 StockMovement::create([
                     'product_id' => $product->id,
                     'type' => 'sale',
@@ -233,7 +238,7 @@ class OrderController extends Controller
         return view('orders.index', compact('orders'));
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(Request $request, Order $order, SaleCostService $saleCostService)
     {
         $request->validate([
             'status' => 'required|in:pending,processing,completed,cancelled',
@@ -241,9 +246,8 @@ class OrderController extends Controller
 
         $newStatus = $request->status;
 
-        // If moving TO cancelled from a non-cancelled state, restock items
         if ($newStatus === 'cancelled' && $order->status !== 'cancelled') {
-            DB::transaction(function () use ($order) {
+            DB::transaction(function () use ($order, $saleCostService) {
                 foreach ($order->items as $item) {
                     $product = Product::find($item->product_id);
 
@@ -258,6 +262,8 @@ class OrderController extends Controller
                             'reason' => "Order #{$order->order_number} cancelled",
                         ]);
                     }
+
+                    $saleCostService->reverseForCancellation($item);
                 }
 
                 $order->update(['status' => 'cancelled']);
