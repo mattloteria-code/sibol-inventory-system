@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Order Tracking System')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
     <div class="min-h-screen flex flex-col">
         <nav class="bg-indigo-600 text-white shadow">
             <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="{{ route('products.index') }}" class="font-bold text-lg">Order Tracker</a>
+                <a href="{{ route('dashboard') }}" class="font-bold text-lg">Order Tracker</a>
                 <div class="space-x-4 text-sm">
+                    <a href="{{ route('dashboard') }}" class="hover:text-indigo-200">Dashboard</a>
                     <a href="{{ route('products.index') }}" class="hover:text-indigo-200">Products</a>
                     <a href="{{ route('categories.index') }}" class="hover:text-indigo-200">Categories</a>
+                    <a href="{{ route('expenses.index') }}" class="hover:text-indigo-200">Expenses</a>
+                    <a href="{{ route('expense-categories.index') }}" class="hover:text-indigo-200">Expense Categories</a>
                     <a href="{{ route('customers.index') }}" class="hover:text-indigo-200">Customers</a>
                     <a href="{{ route('orders.cart.index') }}" class="hover:text-indigo-200">New Order</a>
                     <a href="{{ route('orders.index') }}" class="hover:text-indigo-200">Orders</a>
@@ -40,5 +44,6 @@
             @yield('content')
         </main>
     </div>
+    @stack('scripts')
 </body>
 </html>

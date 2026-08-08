@@ -9,14 +9,19 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpenseCategoryController;
 
 Route::get('/', function () {
-    return redirect()->route('products.index');
+    return redirect()->route('dashboard');
 });
 
 Route::resource('categories', CategoryController::class);
 Route::resource('products', ProductController::class);
 Route::resource('customers', CustomerController::class);
+Route::resource('expenses', ExpenseController::class);
+Route::resource('expense-categories', ExpenseCategoryController::class);
 
 Route::prefix('orders/cart')->name('orders.cart.')->group(function () {
     Route::get('/', [OrderController::class, 'cart'])->name('index');
@@ -58,3 +63,5 @@ Route::get('/production/create', [ProductionController::class, 'selectProduct'])
 Route::get('/production/create/{product}', [ProductionController::class, 'create'])->name('production.create.form');
 Route::post('/production', [ProductionController::class, 'store'])->name('production.store');
 Route::get('/production/{production}', [ProductionController::class, 'show'])->name('production.show');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
