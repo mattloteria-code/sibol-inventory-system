@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -65,3 +66,12 @@ Route::post('/production', [ProductionController::class, 'store'])->name('produc
 Route::get('/production/{production}', [ProductionController::class, 'show'])->name('production.show');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::prefix('reports')->name('reports.')->group( function () {
+    Route::get('/', [ReportController::class, 'index'])->name('index');
+    Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
+    Route::get('/expenses', [ReportController::class, 'expenses'])->name('expenses');
+    Route::get('/profit-loss', [ReportController::class, 'profitLoss'])->name('profit-loss');
+    Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+    Route::get('/customers', [ReportController::class, 'customers'])->name('customers');
+});

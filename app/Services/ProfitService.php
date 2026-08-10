@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\OrderItem;
 use App\Models\Expense;
+use App\Models\Order;
 use Illuminate\Support\Carbon;
 
 class ProfitService
@@ -43,7 +44,17 @@ class ProfitService
             'weekly' => [$today->copy()->startOfWeek(), $today->copy()->endOfWeek()],
             'monthly' => [$today->copy()->startOfMonth(), $today->copy()->endOfMonth()],
             'yearly' => [$today->copy()->startOfYear(), $today->copy()->endOfYear()],
-            default => [Carbon::createFromTimestamp(0), $today->copy()->endOfDay()],
+            default => [self::earliestActivityDate(), $today->copy()->endOfDay()],
         };
+    }
+
+    public static function earliestActivityDate(): Carbon
+    {
+        $earliestOrder = Order::oldest('created_at')->value('created_at');
+        $earliestExpense = Expense::oldest('expense_date')->value('expense_date');
+
+        $dates = collect([$earliestOrder, $earliestExpense])->filter();
+
+        return $dates->isEmpty() ? Carbon::today() : Carbon::parse($dates->min());
     }
 }

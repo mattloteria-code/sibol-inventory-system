@@ -51,7 +51,7 @@
             @forelse ($expenses as $expense)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 font-medium">{{ $expense->title }}</td>
-                    <td class="px-4 py-3 text-gray-500">{{ $expense->category->name ?? '—' }}</td>
+                    <td class="px-4 py-3 text-gray-500">{{ $expense->expenseCategory->name ?? '—' }}</td>
                     <td class="px-4 py-3">₱{{ number_format($expense->amount, 2) }}</td>
                     <td class="px-4 py-3 text-gray-500">{{ $expense->expense_date->format('M d, Y') }}</td>
                     <td class="px-4 py-3 text-right space-x-2">
