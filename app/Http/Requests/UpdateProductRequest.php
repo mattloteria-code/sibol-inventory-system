@@ -26,7 +26,6 @@ class UpdateProductRequest extends FormRequest
              Rule::unique('products', 'sku')->ignore($this->product)
              ],
             'description' => 'nullable|string',
-            'cost_price' => 'sometimes|numeric|min:0',
             'selling_price' => 'sometimes|numeric|min:0',
             'low_stock_threshold' => 'sometimes|integer|min:0',
         ];

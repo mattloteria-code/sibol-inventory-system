@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductIngredient extends Model
 {
+    use Auditable;
+    
     protected $fillable = [
         'product_id',
         'ingredient_id',

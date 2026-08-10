@@ -25,6 +25,7 @@
                     <a href="{{ route('ingredients.index') }}" class="hover:text-indigo-200">Ingredients</a>
                     <a href="{{ route('production.index') }}" class="hover:text-indigo-200">Production</a>
                     <a href="{{ route('reports.index') }}" class="hover:text-indigo-200">Reports</a>
+                    <a href="{{ route('audit-logs.index') }}" class="hover:text-indigo-200">Audit Log</a>
                 </div>
             </div>
         </nav>

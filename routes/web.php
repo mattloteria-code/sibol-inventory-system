@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AuditLogController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -75,3 +76,5 @@ Route::prefix('reports')->name('reports.')->group( function () {
     Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
     Route::get('/customers', [ReportController::class, 'customers'])->name('customers');
 });
+
+Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
