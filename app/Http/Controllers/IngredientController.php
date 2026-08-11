@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateIngredientRequest;
 use App\Models\Ingredient;
 use App\Models\IngredientPriceHistory;
 use App\Models\IngredientPurchase;
+use App\Support\AuditContext;
 use Illuminate\Support\Facades\DB;
 
 class IngredientController extends Controller
@@ -163,8 +164,10 @@ class IngredientController extends Controller
                 'notes' => $request->notes,
             ]);
 
-            $ingredient->increment('current_stock', $baseUnitsAdded);
-            $ingredient->update(['current_price_per_base_unit' => $newFifoPrice]);
+            AuditContext::without(function () use ($ingredient, $baseUnitsAdded, $newFifoPrice) {    
+                $ingredient->increment('current_stock', $baseUnitsAdded);
+                $ingredient->update(['current_price_per_base_unit' => $newFifoPrice]);
+            });
         });
 
         return redirect()->route('ingredients.purchase.form')

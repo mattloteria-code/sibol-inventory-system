@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\ProductionBatch;
 use App\Models\OrderItemBatch;
+use App\Support\AuditContext;
 use Illuminate\Validation\ValidationException;
 
 class SaleCostService
@@ -37,7 +38,7 @@ class SaleCostService
                 'unit_cost_at_time' => $batch->cost_per_unit,
             ]);
 
-            $batch->decrement('remaining_quantity', $consumeFromThis);
+            AuditContext::without(fn () => $batch->decrement('remaining_quantity', $consumeFromThis));
 
             $totalCost += $cost;
             $remainingToConsume -= $consumeFromThis;
@@ -54,7 +55,7 @@ class SaleCostService
     public function reverseForCancellation(OrderItem $orderItem):void
     {
         foreach ($orderItem->batchConsumptions as $consumption) {
-            $consumption->batch->increment('remaining_quantity', $consumption->quantity);
+            AuditContext::without(fn () => $consumption->batch->increment('remaining_quantity', $consumption->quantity));
             $consumption->delete();
         }
     }

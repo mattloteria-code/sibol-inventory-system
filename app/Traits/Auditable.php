@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\AuditLog;
+use App\Support\AuditContext;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -13,6 +14,10 @@ trait Auditable
     public static function bootAuditable()
     {
         static::created(function ($model) {
+            if (AuditContext::isDisabled()) {
+                return;
+            }
+
             $changes = [];
 
             foreach ($model->attributesToArray() as $field => $value) {
@@ -34,6 +39,10 @@ trait Auditable
         });
 
         static::updated(function ($model) {
+            if (AuditContext::isDisabled()) {
+                return;
+            }
+
             $changes = [];
 
             foreach ($model->getChanges() as $field => $newValue) {
@@ -62,6 +71,10 @@ trait Auditable
         });
 
         static::deleted(function ($model) {
+            if (AuditContext::isDisabled()) {
+                return;
+            }
+            
             $changes = [];
 
             foreach ($model->attributesToArray() as $field => $value) {

@@ -22,7 +22,7 @@ class ProductionBatch extends Model
 
     protected $casts = [
         'total_cost' => 'decimal:2',
-        'cost_per_unit' => 'decimal:4',
+        'cost_per_unit' => 'decimal:2',
         'produced_at' => 'datetime',
     ];
 

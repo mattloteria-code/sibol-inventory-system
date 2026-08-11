@@ -7,6 +7,7 @@ use App\Models\ProductionBatch;
 use App\Models\ProductionBatchIngredient;
 use App\Models\IngredientPurchase;
 use App\Models\IngredientPriceHistory;
+use App\Support\AuditContext;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -75,13 +76,14 @@ class ProductionService
                         'subtotal_cost' => $subtotal,
                     ]);
 
-                    $purchase->decrement('remaining_quantity', $consumeFromThis);
+                    AuditContext::without(fn () => $purchase->decrement('remaining_quantity', $consumeFromThis));
 
                     $batchTotalCost += $subtotal;
                     $remainingToConsume -= $consumeFromThis;
                 }
 
-                $ingredient->decrement('current_stock', $quantityNeeded);
+                AuditContext::without(fn () => $ingredient->decrement('current_stock', $quantityNeeded));
+                
 
                 $newFront = IngredientPurchase::where('ingredient_id', $ingredient->id)
                     ->where('remaining_quantity', '>', 0)
@@ -100,10 +102,8 @@ class ProductionService
                         'changed_at' => now(),
                     ]);
                 }
-
-                $ingredient->update([
-                    'current_price_per_base_unit' => $newFrontPrice,
-                ]);
+                
+                AuditContext::without(fn () => $ingredient->update(['current_price_per_base_unit' => $newFrontPrice]));
             }
 
             // Step 4: Finalize totals — cost per unit uses ACTUAL output, capturing any yield variance
@@ -113,7 +113,7 @@ class ProductionService
             ]);
 
             // Step 5: Add actual finished goods to product stock
-            $product->increment('stock_quantity', $actualQuantityProduced);
+            AuditContext::without(fn () => $product->increment('stock_quantity', $actualQuantityProduced));
 
             return $batch->fresh('batchIngredients.ingredient', 'batchIngredients.purchase');
         });

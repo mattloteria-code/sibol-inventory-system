@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\StockMovement;
 use App\Services\SaleCostService;
+use App\Support\AuditContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -181,7 +182,7 @@ class OrderController extends Controller
                     'unit_cost' => $totalCost / $quantity,
                 ]);
 
-                $product->decrement('stock_quantity', $quantity);
+                AuditContext::without(fn () => $product->decrement('stock_quantity', $quantity));
 
                 StockMovement::create([
                     'product_id' => $product->id,
@@ -252,7 +253,7 @@ class OrderController extends Controller
                     $product = Product::find($item->product_id);
 
                     if ($product) {
-                        $product->increment('stock_quantity', $item->quantity);
+                        AuditContext::without(fn () => $product->increment('stock_quantity', $item->quantity));
 
                         StockMovement::create([
                             'product_id' => $product->id,
