@@ -32,8 +32,11 @@ Route::prefix('orders/cart')->name('orders.cart.')->group(function () {
     Route::patch('/update/{product}', [OrderController::class, 'updateCartItem'])->name('update');
     Route::delete('/remove/{product}', [OrderController::class, 'removeFromCart'])->name('remove');
     Route::post('/clear', [OrderController::class, 'clearCart'])->name('clear');
+    Route::post('/payment-method', [OrderController::class, 'setPaymentMethod'])->name('payment-method');
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 });
+
+Route::patch('/orders/{order}/mark-paid', [OrderController::class, 'markAsPaid'])->name('orders.mark-paid');
 
 Route::resource('orders', OrderController::class);
 Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
@@ -78,3 +81,4 @@ Route::prefix('reports')->name('reports.')->group( function () {
 });
 
 Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+

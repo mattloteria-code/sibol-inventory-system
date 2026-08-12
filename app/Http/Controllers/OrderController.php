@@ -22,6 +22,7 @@ class OrderController extends Controller
     {
         $cart = session('cart', []);
         $customerId = session('cart_customer_id');
+        $paymentMethod = session('cart_payment_method');
         $customer = $customerId ? Customer::find($customerId) : null;
 
         $cartItems = collect($cart)->map(function ($item, $productId) {
@@ -46,13 +47,15 @@ class OrderController extends Controller
         ->orderBy('name')
         ->get();
 
-        return view('orders.cart', compact('cartItems', 'total', 'customer', 'customers', 'products'));
+        return view('orders.cart', compact('cartItems', 'total', 'customer', 'customers', 'products', 'paymentMethod'));
     }
 
 
     public function setCustomer(Request $request)
     {
-        $request->validate(['customer_id' => 'required|exists:customers,id']);
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id'
+        ]);
 
         session(['cart_customer_id' => $request->customer_id]);
 
@@ -118,6 +121,7 @@ class OrderController extends Controller
     {
         $cart = session('cart', []);
         $customerId = session('cart_customer_id');
+        $paymentMethod = session('cart_payment_method');
 
         if (empty($cart)) {
             return back()->with('error', 'Your cart is empty.');
@@ -127,7 +131,11 @@ class OrderController extends Controller
             return back()->with('error', 'Please select a customer first.');
         }
 
-        $order = DB::transaction(function () use ($cart, $customerId, $saleCostService) {
+        if (!$paymentMethod) {
+            return back()->with('error', 'Please select a payment method first.');
+        }
+
+        $order = DB::transaction(function () use ($cart, $customerId, $paymentMethod, $saleCostService) {
             // Lock the product rows while we check/update stock, to prevent
             // two simultaneous checkouts from overselling the same stock.
             $products = Product::whereIn('id', array_keys($cart))
@@ -157,6 +165,8 @@ class OrderController extends Controller
                 'order_number' => $this->generateOrderNumber(),
                 'customer_id' => $customerId,
                 'status' => 'pending',
+                'payment_method' => $paymentMethod,
+                'payment_status' => 'unpaid',
                 'total_amount' => 0, // will update after items are added
             ]);
 
@@ -202,7 +212,7 @@ class OrderController extends Controller
         });
 
         // Clear the cart now that the order is safely saved
-        session()->forget(['cart', 'cart_customer_id']);
+        session()->forget(['cart', 'cart_customer_id', 'cart_payment_method']);
 
         return redirect()->route('orders.show', $order)
             ->with('success', "Order {$order->order_number} created successfully.");
@@ -234,6 +244,9 @@ class OrderController extends Controller
         ->when($request->status, function ($query, $status) {
             $query->where('status', $status);
         })
+        ->when($request->payment_status, function ($query, $paymentStatus) {
+            $query->where('payment_status', $paymentStatus);
+        })
         ->latest()->paginate(10)->withQueryString();
 
         return view('orders.index', compact('orders'));
@@ -242,10 +255,14 @@ class OrderController extends Controller
     public function updateStatus(Request $request, Order $order, SaleCostService $saleCostService)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled',
+            'status' => 'required|in:pending,processing,shipped,delivered,completed,cancelled',
         ]);
 
         $newStatus = $request->status;
+
+        if ($newStatus === 'completed' && !$order->isPaid()) {
+            return back()->with('error', 'This order cannot be marked as Complete until payment is confirmed');
+        }
 
         if ($newStatus === 'cancelled' && $order->status !== 'cancelled') {
             DB::transaction(function () use ($order, $saleCostService) {
@@ -276,5 +293,30 @@ class OrderController extends Controller
         $order->update(['status' => $newStatus]);
 
         return back()->with('success', 'Order status updated.');
+    }
+
+    public function setPaymentMethod(Request $request)
+    {
+        $request->validate([
+            'payment_method' => 'required|in:' . implode(',', array_keys(config('payments.methods'))),
+        ]);
+
+        session(['cart_payment_method' => $request->payment_method]);
+
+        return back()->with('success', 'Payment method selected.');
+    }
+
+    public function markAsPaid(Order $order)
+    {
+        if ($order->isPaid()) {
+            return back()->with('error', 'This order is already marked as paid');
+        }
+
+        $order->update([
+            'payment_status' => 'paid',
+            'paid_at' => now(),
+        ]);
+
+        return back()->with('success', 'Order marked as paid.');
     }
 }

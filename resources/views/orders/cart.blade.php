@@ -31,7 +31,8 @@
             @else
                 <form action="{{ route('orders.cart.set-customer') }}" method="POST" class="flex gap-2">
                     @csrf
-                    <select name="customer_id" required class="flex-1 border border-gray-300 rounded-lg px-3 py-2">
+                    <select name="customer_id" required class="flex-1 border border-gray-300 rounded-lg px-3 py-2
+                    onchange="this.form.submit()">
                         <option value="">Select a customer...</option>
                         @foreach ($customers as $c)
                             <option value="{{ $c->id }}">{{ $c->name }}</option>
@@ -114,19 +115,44 @@
             <p class="text-gray-400 text-sm text-center py-6">No items yet.</p>
         @endforelse
 
+        {{-- Payment method selection --}}
+        <div class="bg-white rounded-lg shadow p-4">
+            <h2 class="font-semibold mb-3">Payment Method</h2>
+            <form action="{{ route('orders.cart.payment-method') }}" method="POST" class="flex gap-2">
+                @csrf
+                <select name="payment_method" required class="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+                        onchange="this.form.submit()">
+                    <option value="">Select payment method...</option>
+                    @foreach (config('payments.methods') as $value => $label)
+                        <option value="{{ $value }}" {{ $paymentMethod == $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </form>
+            @if ($paymentMethod)
+                <p class="text-sm text-green-600 mt-2">✓ {{ config("payments.methods.$paymentMethod") }} selected</p>
+            @endif
+        </div>
+
         @if ($cartItems->isNotEmpty())
             <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 font-semibold">
                 <span>Total</span>
                 <span>₱{{ number_format($total, 2) }}</span>
             </div>
 
-            <form action="{{ route('orders.cart.checkout') }}" method="POST">
-                @csrf
-                <button type="submit"
-                        class="w-full mt-4 bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700">
-                    Checkout & Create Order
-                </button>
-            </form>
+            @if (!$customer)
+                <p class="text-xs text-red-500 mt-2">Select a customer before checking out.</p>
+            @elseif (!$paymentMethod)
+                <p class="text-xs text-red-500 mt-2">Select a payment method before checking out.</p>
+            @else
+
+                <form action="{{ route('orders.cart.checkout') }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                            class="w-full mt-4 bg-green-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-green-700">
+                        Checkout & Create Order
+                    </button>
+                </form>
+            @endif
         @endif
     </div>
 </div>

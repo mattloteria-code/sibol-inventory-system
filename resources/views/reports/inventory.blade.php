@@ -57,7 +57,7 @@
                 <tr>
                     <td class="px-4 py-3 font-medium">{{ $ingredient->name }}</td>
                     <td class="px-4 py-3 {{ $ingredient->isLowStock() ? 'text-red-600 font-medium' : '' }}">
-                        {{ number_format($ingredient->current_stock, 2) }} {{ $ingredient->base_unit }}
+                        {{ number_format($ingredient->current_stock) }} {{ $ingredient->base_unit }}
                     </td>
                     <td class="px-4 py-3 text-right">₱{{ number_format($ingredient->total_stock_value, 2) }}</td>
                 </tr>
