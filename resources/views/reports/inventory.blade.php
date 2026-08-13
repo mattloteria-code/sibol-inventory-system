@@ -3,7 +3,11 @@
 @section('title', 'Inventory Report')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">Inventory Report</h1>
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Inventory Report</h1>
+    @include('reports._export-buttons', ['routeName' => 'reports.inventory'])
+</div>
 
 <div class="grid grid-cols-2 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-4">

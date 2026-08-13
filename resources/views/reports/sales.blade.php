@@ -3,11 +3,15 @@
 @section('title', 'Sales Report')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">Sales Report</h1>
 
-@include('reports._period-tabs', ['routeName' => 'reports.sales'])
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Sales Report</h1>
+    @include('reports._export-buttons', ['routeName' => 'reports.sales'])
+</div>
 
-<div class="grid grid-cols-2 gap-4 mb-6">
+@include('reports._date-filter', ['routeName' => 'reports.sales'])
+
+<div class="grid grid-cols-3 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Total Revenue ({{ $rangeLabel }})</p>
         <p class="text-2xl font-bold">₱{{ number_format($totalRevenue, 2) }}</p>
@@ -15,6 +19,11 @@
     <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Total Orders ({{ $rangeLabel }})</p>
         <p class="text-2xl font-bold">{{ $totalOrders }}</p>
+    </div>
+    <div class="bg-amber-50 border border-amber-100 rounded-lg p-4">
+        <p class="text-sm text-gray-500">Outstanding (Unpaid)</p>
+        <p class="text-2xl font-bold text-amber-700">₱{{ number_format($outstandingAmount, 2) }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ $outstandingCount }} order(s)</p>
     </div>
 </div>
 

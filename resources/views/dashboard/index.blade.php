@@ -6,7 +6,7 @@
 <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
 
 {{-- Top metric cards --}}
-<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-6 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Revenue (This Month)</p>
         <p class="text-2xl font-bold">₱{{ number_format($monthlySummary['revenue'], 2) }}</p>
@@ -26,6 +26,11 @@
     <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Orders (This Month)</p>
         <p class="text-2xl font-bold">{{ $monthlySummary['order_count'] }}</p>
+    </div>
+    <div class="bg-amber-50 border border-amber-100 rounded-lg p-4">
+        <p class="text-sm text-gray-500">Outstanding (Unpaid)</p>
+        <p class="text-2xl font-bold text-amber-700">₱{{ number_format($monthlySummary['outstanding_amount'], 2) }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ $monthlySummary['outstanding_count'] }} order(s) awaiting payment</p>
     </div>
 </div>
 

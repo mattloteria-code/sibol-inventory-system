@@ -25,6 +25,16 @@ class ProfitService
 
         $netProfit = $grossProfit - $operatingExpenses;
 
+        $outstandingAmount = Order::where('status', '!=', 'cancelled')
+            ->where('payment_status', 'unpaid')
+            ->whereBetween('created_at', [$start, $end])
+            ->sum('total_amount');
+
+        $outstandingCount = Order::where('status', '!=', 'cancelled')
+            ->where('payment_status', 'unpaid')
+            ->whereBetween('created_at', [$start, $end])
+            ->count();
+
         return [
             'revenue' => round($revenue, 2),
             'cogs' => round($cogs, 2),
@@ -32,6 +42,8 @@ class ProfitService
             'operating_expenses' => round($operatingExpenses, 2),
             'net_profit' => round($netProfit, 2),
             'order_count' => $orderItems->pluck('order_id')->unique()->count(),
+            'outstanding_amount' => round($outstandingAmount, 2),
+            'outstanding_count' => $outstandingCount,
         ];
     }
 
@@ -46,6 +58,37 @@ class ProfitService
             'yearly' => [$today->copy()->startOfYear(), $today->copy()->endOfYear()],
             default => [self::earliestActivityDate(), $today->copy()->endOfDay()],
         };
+    }
+
+    public static function resolveRange(\Illuminate\Http\Request $request): array
+    {
+        if ($request->filled('date')) {
+            $day = Carbon::parse($request->date);
+            return [$day->copy()->startOfDay(), $day->copy()->endOfDay(), $day->format('M d, Y')];
+        }
+
+        if ($request->filled('month')) {
+            $month = Carbon::createFromFormat('Y-m', $request->month);
+            return [$month->copy()->startOfMonth(), $month->copy()->endOfMonth(), $month->format('F Y')];
+        }
+
+        if ($request->filled('year')) {
+            $year = Carbon::createFromFormat('Y', $request->year);
+            return [$year->copy()->startOfYear(), $year->copy()->endOfYear(), $year->format('Y')];
+        }
+
+        $period = $request->get('period', 'monthly');
+        [$start, $end] = self::resolveDateRange($period);
+
+        $labels = [
+            'daily' => 'Today', 
+            'weekly' => 'This Week',
+            'monthly' => 'This Month', 
+            'yearly' => 'This Year', 
+            'all' => 'All Time',
+        ];
+
+        return [$start, $end, $labels[$period] ?? 'All Time'];
     }
 
     public static function earliestActivityDate(): Carbon

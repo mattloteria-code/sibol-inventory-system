@@ -3,9 +3,13 @@
 @section('title', 'Customer Purchase Report')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">Customer Purchase Report</h1>
 
-@include('reports._period-tabs', ['routeName' => 'reports.customers'])
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Customer Purchase Report</h1>
+    @include('reports._export-buttons', ['routeName' => 'reports.customers'])
+</div>
+
+@include('reports._date-filter', ['routeName' => 'reports.customers'])
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
     <table class="w-full text-sm text-left">

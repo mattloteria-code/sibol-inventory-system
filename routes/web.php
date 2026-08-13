@@ -71,13 +71,28 @@ Route::get('/production/{production}', [ProductionController::class, 'show'])->n
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::prefix('reports')->name('reports.')->group( function () {
+Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('index');
+
     Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
+    Route::get('/sales/pdf', [ReportController::class, 'salesPdf'])->name('sales.pdf');
+    Route::get('/sales/excel', [ReportController::class, 'salesExcel'])->name('sales.excel');
+
     Route::get('/expenses', [ReportController::class, 'expenses'])->name('expenses');
+    Route::get('/expenses/pdf', [ReportController::class, 'expensesPdf'])->name('expenses.pdf');
+    Route::get('/expenses/excel', [ReportController::class, 'expensesExcel'])->name('expenses.excel');
+
     Route::get('/profit-loss', [ReportController::class, 'profitLoss'])->name('profit-loss');
+    Route::get('/profit-loss/pdf', [ReportController::class, 'profitLossPdf'])->name('profit-loss.pdf');
+    Route::get('/profit-loss/excel', [ReportController::class, 'profitLossExcel'])->name('profit-loss.excel');
+
     Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+    Route::get('/inventory/pdf', [ReportController::class, 'inventoryPdf'])->name('inventory.pdf');
+    Route::get('/inventory/excel', [ReportController::class, 'inventoryExcel'])->name('inventory.excel');
+
     Route::get('/customers', [ReportController::class, 'customers'])->name('customers');
+    Route::get('/customers/pdf', [ReportController::class, 'customersPdf'])->name('customers.pdf');
+    Route::get('/customers/excel', [ReportController::class, 'customersExcel'])->name('customers.excel');
 });
 
 Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');

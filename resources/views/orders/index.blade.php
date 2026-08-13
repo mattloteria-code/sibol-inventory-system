@@ -11,6 +11,8 @@
     </a>
 </div>
 
+@include('reports._date-filter', ['routeName' => 'orders.index'])
+
 <form action="{{ route('orders.index') }}" method="GET" class="mb-4 flex gap-3">
     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by order # or customer..."
            class="flex-1 border border-gray-300 rounded-lg px-3 py-2">
@@ -24,28 +26,27 @@
         @endforeach
     </select>
 
-    <button type="submit" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">Search</button>
-</form>
-
-<form method="GET" action="{{ route('orders.index') }}" class="mb-4 flex items-center gap-3">
-    <label for="payment_status" class="text-sm font-medium text-gray-700">
-        Payment:
-    </label>
-
-    <select
-        name="payment_status"
-        id="payment_status"
-        onchange="this.form.submit()"
-        class="border border-gray-300 rounded-lg px-3 py-2"
-    >
-        <option value="">All</option>
-        <option value="paid" @selected(request('payment_status') === 'paid')>
-            Paid
-        </option>
-        <option value="unpaid" @selected(request('payment_status') === 'unpaid')>
-            Unpaid
-        </option>
+    <select name="payment_status" onchange="this.form.submit()" class="border border-gray-300 rounded-lg px-3 py-2">
+        <option value="">All payment statuses</option>
+        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+        <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
     </select>
+
+    <button type="submit" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">Search</button>
+
+    {{-- Carry over any active date filter so it isn't lost when searching/filtering by status --}}
+    @if (request('date'))
+        <input type="hidden" name="date" value="{{ request('date') }}">
+    @endif
+    @if (request('month'))
+        <input type="hidden" name="month" value="{{ request('month') }}">
+    @endif
+    @if (request('year'))
+        <input type="hidden" name="year" value="{{ request('year') }}">
+    @endif
+    @if (request('period'))
+        <input type="hidden" name="period" value="{{ request('period') }}">
+    @endif
 </form>
 
 <div class="bg-white rounded-lg shadow overflow-hidden">

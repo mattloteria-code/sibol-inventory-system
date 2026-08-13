@@ -3,9 +3,13 @@
 @section('title', 'Expense Report')
 
 @section('content')
-<h1 class="text-2xl font-bold mb-6">Expense Report</h1>
 
-@include('reports._period-tabs', ['routeName' => 'reports.expenses'])
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Expenses Report</h1>
+    @include('reports._export-buttons', ['routeName' => 'reports.expenses'])
+</div>
+
+@include('reports._date-filter', ['routeName' => 'reports.expenses'])
 
 <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-6">
     <p class="text-sm text-gray-600">Total Expenses ({{ $rangeLabel }})</p>

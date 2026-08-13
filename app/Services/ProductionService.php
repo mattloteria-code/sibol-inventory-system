@@ -7,6 +7,7 @@ use App\Models\ProductionBatch;
 use App\Models\ProductionBatchIngredient;
 use App\Models\IngredientPurchase;
 use App\Models\IngredientPriceHistory;
+use App\Models\StockMovement;
 use App\Support\AuditContext;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -114,6 +115,14 @@ class ProductionService
 
             // Step 5: Add actual finished goods to product stock
             AuditContext::without(fn () => $product->increment('stock_quantity', $actualQuantityProduced));
+
+            StockMovement::create([
+                'product_id' => $product->id,
+                'type' => 'restock',
+                'quantity_change' => $actualQuantityProduced,
+                'quantity_after' => $product->fresh()->stock_quantity,
+                'reason' => "Production batch #{$batch->id}",
+            ]);
 
             return $batch->fresh('batchIngredients.ingredient', 'batchIngredients.purchase');
         });

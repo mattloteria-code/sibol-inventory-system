@@ -247,6 +247,10 @@ class OrderController extends Controller
         ->when($request->payment_status, function ($query, $paymentStatus) {
             $query->where('payment_status', $paymentStatus);
         })
+        ->when($request->filled('date') || $request->filled('month') || $request->filled('year'), function ($query) use ($request) {
+            [$start, $end] = \App\Services\ProfitService::resolveRange($request);
+            $query->whereBetween('created_at', [$start, $end]);
+        })
         ->latest()->paginate(10)->withQueryString();
 
         return view('orders.index', compact('orders'));
