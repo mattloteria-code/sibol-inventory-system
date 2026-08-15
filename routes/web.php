@@ -97,3 +97,11 @@ Route::prefix('reports')->name('reports.')->group(function () {
 
 Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 
+use App\Http\Controllers\NotificationController;
+
+Route::prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::patch('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
+    Route::patch('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
+});
+

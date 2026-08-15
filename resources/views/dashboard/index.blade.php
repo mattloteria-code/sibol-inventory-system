@@ -6,7 +6,7 @@
 <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
 
 {{-- Top metric cards --}}
-<div class="grid grid-cols-6 gap-4 mb-6">
+<div class="grid grid-cols-5 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Revenue (This Month)</p>
         <p class="text-2xl font-bold">₱{{ number_format($monthlySummary['revenue'], 2) }}</p>

@@ -10,13 +10,53 @@
 <body class="bg-gray-50 text-gray-900">
     <div class="min-h-screen flex flex-col">
         <nav class="fixed left-0 top-0 h-screen w-64 bg-sky-950 text-white shadow-lg">
-        <div class="px-6 py-5 bg-sky-950 border-b border-indigo-500">
+        <div class="flex items-center justify-between px-6 py-5 bg-sky-950 border-b border-indigo-500">
             <a href="{{ route('dashboard') }}" class="font-bold text-xl flex items-center gap-3">
                 <img src="{{ asset('images/sibollogo.jpg') }}"
                     alt="Order Tracker Logo"
                     class="h-12 w-12 object-contain rounded">
                     <h1> Sibol </h1>
             </a>
+
+            {{-- Notifications --}}
+            <div class="relative">
+                <button onclick="document.getElementById('notif-dropdown').classList.toggle('hidden')"
+                        class="relative hover:text-indigo-200">
+                    🔔
+                    @if ($unreadNotificationCount > 0)
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                            {{ $unreadNotificationCount > 9 ? '9+' : $unreadNotificationCount }}
+                        </span>
+                    @endif
+                </button>
+
+                <div id="notif-dropdown" class="hidden absolute left-full ml-3 top-0 w-80 bg-white text-gray-800 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                    <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                        <span class="font-semibold text-sm">Notifications</span>
+                        @if ($unreadNotificationCount > 0)
+                            <form action="{{ route('notifications.mark-all-read') }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="text-xs text-indigo-600 hover:underline">Mark all read</button>
+                            </form>
+                        @endif
+                    </div>
+
+                    @forelse ($unreadNotifications as $notification)
+                        <a href="{{ $notification->link ?? '#' }}" class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50">
+                            <p class="text-sm font-medium">{{ $notification->title }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ $notification->message }}</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                        </a>
+                    @empty
+                        <p class="text-sm text-gray-400 text-center py-6">No new notifications.</p>
+                    @endforelse
+
+                    <a href="{{ route('notifications.index') }}" class="block text-center text-xs text-indigo-600 py-2 hover:underline">
+                        View all notifications
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="p-4 space-y-2 overflow-y-auto h-[calc(100vh-80px)]">
@@ -198,6 +238,8 @@
                             : 'hover:bg-indigo-600' }}">
                 Audit Log
             </a>
+
+            
 
         </div>
     </nav>

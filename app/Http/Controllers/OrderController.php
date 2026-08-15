@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\StockMovement;
 use App\Services\SaleCostService;
+use App\Services\NotificationService;
 use App\Support\AuditContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -117,7 +118,7 @@ class OrderController extends Controller
         //
     }
 
-    public function checkout(SaleCostService $saleCostService)
+    public function checkout(SaleCostService $saleCostService, NotificationService $notificationService)
     {
         $cart = session('cart', []);
         $customerId = session('cart_customer_id');
@@ -135,7 +136,7 @@ class OrderController extends Controller
             return back()->with('error', 'Please select a payment method first.');
         }
 
-        $order = DB::transaction(function () use ($cart, $customerId, $paymentMethod, $saleCostService) {
+        $order = DB::transaction(function () use ($cart, $customerId, $paymentMethod, $saleCostService, $notificationService) {
             // Lock the product rows while we check/update stock, to prevent
             // two simultaneous checkouts from overselling the same stock.
             $products = Product::whereIn('id', array_keys($cart))
@@ -201,6 +202,8 @@ class OrderController extends Controller
                     'quantity_after' => $product->fresh()->stock_quantity,
                     'reason' => "Order #{$order->order_number}",
                 ]);
+
+                $notificationService->checkProductLowStock($product->fresh());
 
                 $total += $product->selling_price * $quantity;
             }

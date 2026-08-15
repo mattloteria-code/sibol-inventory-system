@@ -19,7 +19,9 @@ class ProductionService
      */
     public function produceBatch(Product $product, array $ingredientQuantities, int $actualQuantityProduced, ?string $notes = null): ProductionBatch
     {
-        return DB::transaction(function () use ($product, $ingredientQuantities, $actualQuantityProduced, $notes) {
+        $notificationService = app(NotificationService::class);
+
+        return DB::transaction(function () use ($product, $ingredientQuantities, $actualQuantityProduced, $notes, $notificationService) {
 
             // Step 1: Verify sufficient stock for every ingredient before writing anything
             foreach ($ingredientQuantities as $ingredientId => $quantityNeeded) {
@@ -105,6 +107,8 @@ class ProductionService
                 }
                 
                 AuditContext::without(fn () => $ingredient->update(['current_price_per_base_unit' => $newFrontPrice]));
+
+                $notificationService->checkIngredientLowStock($ingredient->fresh());
             }
 
             // Step 4: Finalize totals — cost per unit uses ACTUAL output, capturing any yield variance
@@ -123,6 +127,8 @@ class ProductionService
                 'quantity_after' => $product->fresh()->stock_quantity,
                 'reason' => "Production batch #{$batch->id}",
             ]);
+
+            $notificationService->checkProductLowStock($product->fresh());
 
             return $batch->fresh('batchIngredients.ingredient', 'batchIngredients.purchase');
         });
