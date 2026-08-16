@@ -16,6 +16,12 @@
         <p class="text-2xl font-bold">{{ $batch->quantity_produced }}</p>
     </div>
     <div class="bg-white rounded-lg shadow p-4">
+        <p class="text-sm text-gray-500">Remaining (Unsold)</p>
+        <p class="text-2xl font-bold {{ $batch->remaining_quantity <= 0 ? 'text-gray-400' : 'text-green-600' }}">
+            {{ $batch->remaining_quantity }}
+        </p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
         <p class="text-sm text-gray-500">Total Cost</p>
         <p class="text-2xl font-bold">₱{{ number_format($batch->total_cost, 2) }}</p>
     </div>

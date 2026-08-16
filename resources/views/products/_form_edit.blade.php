@@ -37,12 +37,6 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4">
-        <div>
-            <label class="block text-sm font-medium mb-1">Cost Price</label>
-            <input type="number" step="0.01" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}"
-                   class="w-full border border-gray-300 rounded-lg px-3 py-2">
-            @error('cost_price') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
 
         <div>
             <label class="block text-sm font-medium mb-1">Selling Price</label>

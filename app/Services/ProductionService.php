@@ -7,6 +7,8 @@ use App\Models\ProductionBatch;
 use App\Models\ProductionBatchIngredient;
 use App\Models\IngredientPurchase;
 use App\Models\IngredientPriceHistory;
+use App\Models\StockMovement;
+use App\Support\AuditContext;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -17,7 +19,9 @@ class ProductionService
      */
     public function produceBatch(Product $product, array $ingredientQuantities, int $actualQuantityProduced, ?string $notes = null): ProductionBatch
     {
-        return DB::transaction(function () use ($product, $ingredientQuantities, $actualQuantityProduced, $notes) {
+        $notificationService = app(NotificationService::class);
+
+        return DB::transaction(function () use ($product, $ingredientQuantities, $actualQuantityProduced, $notes, $notificationService) {
 
             // Step 1: Verify sufficient stock for every ingredient before writing anything
             foreach ($ingredientQuantities as $ingredientId => $quantityNeeded) {
@@ -37,6 +41,7 @@ class ProductionService
             $batch = ProductionBatch::create([
                 'product_id' => $product->id,
                 'quantity_produced' => $actualQuantityProduced,
+                'remaining_quantity' => $actualQuantityProduced,
                 'total_cost' => 0,
                 'cost_per_unit' => 0,
                 'produced_at' => now(),
@@ -74,13 +79,14 @@ class ProductionService
                         'subtotal_cost' => $subtotal,
                     ]);
 
-                    $purchase->decrement('remaining_quantity', $consumeFromThis);
+                    AuditContext::without(fn () => $purchase->decrement('remaining_quantity', $consumeFromThis));
 
                     $batchTotalCost += $subtotal;
                     $remainingToConsume -= $consumeFromThis;
                 }
 
-                $ingredient->decrement('current_stock', $quantityNeeded);
+                AuditContext::without(fn () => $ingredient->decrement('current_stock', $quantityNeeded));
+                
 
                 $newFront = IngredientPurchase::where('ingredient_id', $ingredient->id)
                     ->where('remaining_quantity', '>', 0)
@@ -99,10 +105,10 @@ class ProductionService
                         'changed_at' => now(),
                     ]);
                 }
+                
+                AuditContext::without(fn () => $ingredient->update(['current_price_per_base_unit' => $newFrontPrice]));
 
-                $ingredient->update([
-                    'current_price_per_base_unit' => $newFrontPrice,
-                ]);
+                $notificationService->checkIngredientLowStock($ingredient->fresh());
             }
 
             // Step 4: Finalize totals — cost per unit uses ACTUAL output, capturing any yield variance
@@ -112,7 +118,17 @@ class ProductionService
             ]);
 
             // Step 5: Add actual finished goods to product stock
-            $product->increment('stock_quantity', $actualQuantityProduced);
+            AuditContext::without(fn () => $product->increment('stock_quantity', $actualQuantityProduced));
+
+            StockMovement::create([
+                'product_id' => $product->id,
+                'type' => 'restock',
+                'quantity_change' => $actualQuantityProduced,
+                'quantity_after' => $product->fresh()->stock_quantity,
+                'reason' => "Production batch #{$batch->id}",
+            ]);
+
+            $notificationService->checkProductLowStock($product->fresh());
 
             return $batch->fresh('batchIngredients.ingredient', 'batchIngredients.purchase');
         });

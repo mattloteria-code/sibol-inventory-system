@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Ingredient extends Model
 {
+    use Auditable;
+    
     protected $fillable = [
         'name',
         'unit_type',
@@ -18,8 +21,8 @@ class Ingredient extends Model
     ];
 
     protected $casts = [
-        'current_stock' => 'decimal:3',
-        'current_price_per_base_unit' => 'decimal:4',
+        'current_stock' => 'decimal:0',
+        'current_price_per_base_unit' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 

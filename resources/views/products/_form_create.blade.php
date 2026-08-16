@@ -43,16 +43,7 @@
                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
             @error('selling_price') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-            <label class="block text-sm font-medium mb-1">Stock Quantity</label>
-            <input type="number" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity ?? 0) }}"
-                   class="w-full border border-gray-300 rounded-lg px-3 py-2">
-            @error('stock_quantity') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
-
+        
         <div>
             <label class="block text-sm font-medium mb-1">Low Stock Threshold</label>
             <input type="number" name="low_stock_threshold" value="{{ old('low_stock_threshold', $product->low_stock_threshold ?? 10) }}"

@@ -9,14 +9,21 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AuditLogController;
 
 Route::get('/', function () {
-    return redirect()->route('products.index');
+    return redirect()->route('dashboard');
 });
 
 Route::resource('categories', CategoryController::class);
 Route::resource('products', ProductController::class);
 Route::resource('customers', CustomerController::class);
+Route::resource('expenses', ExpenseController::class);
+Route::resource('expense-categories', ExpenseCategoryController::class);
 
 Route::prefix('orders/cart')->name('orders.cart.')->group(function () {
     Route::get('/', [OrderController::class, 'cart'])->name('index');
@@ -25,8 +32,11 @@ Route::prefix('orders/cart')->name('orders.cart.')->group(function () {
     Route::patch('/update/{product}', [OrderController::class, 'updateCartItem'])->name('update');
     Route::delete('/remove/{product}', [OrderController::class, 'removeFromCart'])->name('remove');
     Route::post('/clear', [OrderController::class, 'clearCart'])->name('clear');
+    Route::post('/payment-method', [OrderController::class, 'setPaymentMethod'])->name('payment-method');
     Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 });
+
+Route::patch('/orders/{order}/mark-paid', [OrderController::class, 'markAsPaid'])->name('orders.mark-paid');
 
 Route::resource('orders', OrderController::class);
 Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
@@ -58,3 +68,40 @@ Route::get('/production/create', [ProductionController::class, 'selectProduct'])
 Route::get('/production/create/{product}', [ProductionController::class, 'create'])->name('production.create.form');
 Route::post('/production', [ProductionController::class, 'store'])->name('production.store');
 Route::get('/production/{production}', [ProductionController::class, 'show'])->name('production.show');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/', [ReportController::class, 'index'])->name('index');
+
+    Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
+    Route::get('/sales/pdf', [ReportController::class, 'salesPdf'])->name('sales.pdf');
+    Route::get('/sales/excel', [ReportController::class, 'salesExcel'])->name('sales.excel');
+
+    Route::get('/expenses', [ReportController::class, 'expenses'])->name('expenses');
+    Route::get('/expenses/pdf', [ReportController::class, 'expensesPdf'])->name('expenses.pdf');
+    Route::get('/expenses/excel', [ReportController::class, 'expensesExcel'])->name('expenses.excel');
+
+    Route::get('/profit-loss', [ReportController::class, 'profitLoss'])->name('profit-loss');
+    Route::get('/profit-loss/pdf', [ReportController::class, 'profitLossPdf'])->name('profit-loss.pdf');
+    Route::get('/profit-loss/excel', [ReportController::class, 'profitLossExcel'])->name('profit-loss.excel');
+
+    Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+    Route::get('/inventory/pdf', [ReportController::class, 'inventoryPdf'])->name('inventory.pdf');
+    Route::get('/inventory/excel', [ReportController::class, 'inventoryExcel'])->name('inventory.excel');
+
+    Route::get('/customers', [ReportController::class, 'customers'])->name('customers');
+    Route::get('/customers/pdf', [ReportController::class, 'customersPdf'])->name('customers.pdf');
+    Route::get('/customers/excel', [ReportController::class, 'customersExcel'])->name('customers.excel');
+});
+
+Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+
+use App\Http\Controllers\NotificationController;
+
+Route::prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::patch('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
+    Route::patch('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
+});
+

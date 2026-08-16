@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class IngredientPurchase extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'ingredient_id',
@@ -31,7 +32,7 @@ class IngredientPurchase extends Model
         'total_cost' => 'decimal:2',
         'base_units_added' => 'decimal:3',
         'price_per_base_unit' => 'decimal:4',
-        'remaining_quantity' => 'decimal:3',
+        'remaining_quantity' => 'decimal:0',
         'purchase_date' => 'date',
     ];
 

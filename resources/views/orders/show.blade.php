@@ -7,6 +7,23 @@
     <div>
         <h1 class="text-2xl font-bold">Order {{ $order->order_number }}</h1>
         <p class="text-gray-500 text-sm mt-1">{{ $order->created_at->format('M d, Y - h:i A') }}</p>
+        <div class="flex items-center gap-2 mt-2">
+            <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                {{ config("payments.methods.{$order->payment_method}", 'Unknown') }}
+            </span>
+            @if ($order->isPaid())
+                <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
+                    Paid {{ $order->paid_at?->format('M d, Y h:i A') }}
+                </span>
+            @else
+                <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800">Unpaid</span>
+                <form action="{{ route('orders.mark-paid', $order) }}" method="POST" class="inline">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="text-xs text-indigo-600 hover:underline">Mark as Paid</button>
+                </form>
+            @endif
+        </div>
     </div>
 
     @if ($order->status !== 'cancelled' && $order->status !== 'completed')
@@ -14,7 +31,7 @@
             @csrf
             @method('PATCH')
             <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                @foreach (['pending', 'processing', 'completed', 'cancelled'] as $status)
+                @foreach (['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'] as $status)
                     <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>
                         {{ ucfirst($status) }}
                     </option>
@@ -47,6 +64,7 @@
                 <th class="px-4 py-3">Qty</th>
                 <th class="px-4 py-3">Unit Price</th>
                 <th class="px-4 py-3 text-right">Subtotal</th>
+                <th class="px-4 py-3">Payment</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -56,6 +74,14 @@
                     <td class="px-4 py-3">{{ $item->quantity }}</td>
                     <td class="px-4 py-3">₱{{ number_format($item->unit_price, 2) }}</td>
                     <td class="px-4 py-3 text-right">₱{{ number_format($item->subtotal, 2) }}</td>
+                    <td class="px-4 py-3">
+                        <div class="text-xs text-gray-500">{{ config("payments.methods.{$order->payment_method}", '—') }}</div>
+                        @if ($order->isPaid())
+                            <span class="text-xs text-green-600">Paid</span>
+                        @else
+                            <span class="text-xs text-red-600">Unpaid</span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

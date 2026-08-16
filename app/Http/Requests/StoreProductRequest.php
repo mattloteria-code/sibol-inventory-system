@@ -22,7 +22,7 @@ class StoreProductRequest extends FormRequest
             'sku' => 'required|string|max:100|unique:products,sku',
             'description' => 'nullable|string',
             'selling_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
+            'stock_quantity' => 'integer|min:0',
             'low_stock_threshold' => 'required|integer|min:0',
         ];
     }

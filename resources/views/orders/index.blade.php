@@ -11,20 +11,42 @@
     </a>
 </div>
 
+@include('reports._date-filter', ['routeName' => 'orders.index'])
+
 <form action="{{ route('orders.index') }}" method="GET" class="mb-4 flex gap-3">
     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by order # or customer..."
            class="flex-1 border border-gray-300 rounded-lg px-3 py-2">
 
     <select name="status" onchange="this.form.submit()" class="border border-gray-300 rounded-lg px-3 py-2">
         <option value="">All statuses</option>
-        @foreach (['pending', 'processing', 'completed', 'cancelled'] as $status)
+        @foreach (['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'] as $status)
             <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
                 {{ ucfirst($status) }}
             </option>
         @endforeach
     </select>
 
+    <select name="payment_status" onchange="this.form.submit()" class="border border-gray-300 rounded-lg px-3 py-2">
+        <option value="">All payment statuses</option>
+        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+        <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+    </select>
+
     <button type="submit" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">Search</button>
+
+    {{-- Carry over any active date filter so it isn't lost when searching/filtering by status --}}
+    @if (request('date'))
+        <input type="hidden" name="date" value="{{ request('date') }}">
+    @endif
+    @if (request('month'))
+        <input type="hidden" name="month" value="{{ request('month') }}">
+    @endif
+    @if (request('year'))
+        <input type="hidden" name="year" value="{{ request('year') }}">
+    @endif
+    @if (request('period'))
+        <input type="hidden" name="period" value="{{ request('period') }}">
+    @endif
 </form>
 
 <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -35,6 +57,7 @@
                 <th class="px-4 py-3">Customer</th>
                 <th class="px-4 py-3">Total</th>
                 <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Payment</th>
                 <th class="px-4 py-3">Date</th>
                 <th class="px-4 py-3 text-right">Actions</th>
             </tr>
@@ -62,6 +85,18 @@
                             {{ $order->status }}
                         </span>
                     </td>
+                    <td class="px-4 py-3">
+                        @php
+                            $paymentColors = [
+                                'paid' => 'bg-green-100 text-green-800',
+                                'unpaid' => 'bg-red-100 text-red-800',
+                            ];
+                        @endphp
+
+                        <span class="text-xs px-2 py-1 rounded-full {{ $paymentColors[$order->payment_status] ?? 'bg-gray-100 text-gray-800' }} capitalize">
+                            {{ $order->payment_status }}
+                        </span>
+                    </td>
                     <td class="px-4 py-3 text-gray-500">{{ $order->created_at->format('M d, Y') }}</td>
                     <td class="px-4 py-3 text-right">
                         <a href="{{ route('orders.show', $order) }}" class="text-indigo-600 hover:underline text-sm">View</a>
@@ -69,7 +104,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-400">No orders found.</td>
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-400">No orders found.</td>
                 </tr>
             @endforelse
         </tbody>

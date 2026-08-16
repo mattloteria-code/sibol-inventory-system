@@ -14,10 +14,6 @@
         <p class="text-sm text-gray-500">Low Stock Items</p>
         <p class="text-2xl font-bold {{ $lowStockCount > 0 ? 'text-red-600' : '' }}">{{ $lowStockCount }}</p>
     </a>
-    <a href="{{ route('inventory.restock.form') }}"
-       class="bg-indigo-600 text-white rounded-lg shadow p-4 flex items-center justify-center font-medium hover:bg-indigo-700">
-        + Restock Product
-    </a>
 </div>
 
 <div class="bg-white rounded-lg shadow p-4">
