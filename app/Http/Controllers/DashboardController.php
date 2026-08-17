@@ -5,12 +5,43 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
+use App\Models\Expense;
 use App\Models\IngredientPurchase;
 use App\Services\ProfitService;
 use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
+    private function expensesTrend(): array
+    {
+        $trend = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $day = Carbon::today()->subDays($i);
+
+            $total = Expense::whereDate('expense_date', $day)->sum('amount');
+
+            $trend[] = ['label' => $day->format('M d'), 'value' => round($total, 2)];
+        }
+
+        return $trend;
+    }
+
+    private function profitTrend(ProfitService $profitService): array
+    {
+        $trend = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $day = Carbon::today()->subDays($i);
+
+            $summary = $profitService->summaryForRange($day->copy()->startOfDay(), $day->copy()->endOfDay());
+
+            $trend[] = ['label' => $day->format('M d'), 'value' => $summary['net_profit']];
+        }
+
+        return $trend;
+    }
+
     public function index(ProfitService $profitService)
     {
         [$monthStart, $monthEnd] = ProfitService::resolveDateRange('monthly');
@@ -44,7 +75,10 @@ class DashboardController extends Controller
             ];
         }
 
-        $recentOrders = Order::with('customer')->latest()->take(5)->get();
+        $expensesTrend = $this->expensesTrend();
+        $profitTrend = $this->profitTrend($profitService);
+
+        $recentOrders = Order::with('customer')->latest()->take(6)->get();
 
         return view('dashboard.index', compact(
             'monthlySummary',
@@ -53,6 +87,8 @@ class DashboardController extends Controller
             'lowStockProducts',
             'lowStockIngredients',
             'salesTrend',
+            'expensesTrend',
+            'profitTrend',
             'recentOrders',
             'ingredientSpendThisMonth'
         ));

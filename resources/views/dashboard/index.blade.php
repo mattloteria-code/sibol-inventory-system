@@ -54,36 +54,43 @@
     </a>
 </div>
 
-{{-- Chart + recent orders --}}
-<div class="grid grid-cols-3 gap-6">
-    <div class="col-span-2 bg-white rounded-lg shadow p-4">
-        <h2 class="font-semibold mb-3">Sales — Last 7 Days</h2>
-        <canvas id="salesChart" height="100"></canvas>
-    </div>
-
+{{-- Charts --}}
+<div class="grid grid-cols-3 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-4">
-        <h2 class="font-semibold mb-3">Recent Orders</h2>
-        <div class="space-y-3">
-            @forelse ($recentOrders as $order)
-                <a href="{{ route('orders.show', $order) }}" class="block hover:bg-gray-50 p-2 -mx-2 rounded">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium">{{ $order->order_number }}</span>
-                        <span class="text-sm text-gray-500">₱{{ number_format($order->total_amount, 2) }}</span>
-                    </div>
-                    <p class="text-xs text-gray-400">{{ $order->customer->name }} · {{ $order->created_at->diffForHumans() }}</p>
-                </a>
-            @empty
-                <p class="text-gray-400 text-sm">No orders yet.</p>
-            @endforelse
-        </div>
+        <h2 class="font-semibold mb-3 text-sm">Sales — Last 7 Days</h2>
+        <canvas id="salesChart" height="150"></canvas>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="font-semibold mb-3 text-sm">Expenses — Last 7 Days</h2>
+        <canvas id="expensesChart" height="150"></canvas>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="font-semibold mb-3 text-sm">Net Profit — Last 7 Days</h2>
+        <canvas id="profitChart" height="150"></canvas>
+    </div>
+</div>
+
+{{-- Recent orders, full width now --}}
+<div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-semibold mb-3">Recent Orders</h2>
+    <div class="grid grid-cols-2 gap-3">
+        @forelse ($recentOrders as $order)
+            <a href="{{ route('orders.show', $order) }}" class="block hover:bg-gray-50 p-2 rounded border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium">{{ $order->order_number }}</span>
+                    <span class="text-sm text-gray-500">₱{{ number_format($order->total_amount, 2) }}</span>
+                </div>
+                <p class="text-xs text-gray-400">{{ $order->customer->name }} · {{ $order->created_at->diffForHumans() }}</p>
+            </a>
+        @empty
+            <p class="text-gray-400 text-sm">No orders yet.</p>
+        @endforelse
     </div>
 </div>
 
 @push('scripts')
 <script>
-    const ctx = document.getElementById('salesChart');
-
-    new Chart(ctx, {
+    new Chart(document.getElementById('salesChart'), {
         type: 'bar',
         data: {
             labels: {!! json_encode(collect($salesTrend)->pluck('label')) !!},
@@ -96,12 +103,44 @@
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('expensesChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode(collect($expensesTrend)->pluck('label')) !!},
+            datasets: [{
+                label: 'Expenses',
+                data: {!! json_encode(collect($expensesTrend)->pluck('value')) !!},
+                backgroundColor: '#d97706',
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('profitChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode(collect($profitTrend)->pluck('label')) !!},
+            datasets: [{
+                label: 'Net Profit',
+                data: {!! json_encode(collect($profitTrend)->pluck('value')) !!},
+                backgroundColor: {!! json_encode(collect($profitTrend)->pluck('value')->map(fn($v) => $v >= 0 ? '#16a34a' : '#dc2626')) !!},
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
         }
     });
 </script>

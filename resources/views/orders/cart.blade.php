@@ -29,16 +29,15 @@
                     </form>
                 </div>
             @else
-                <form action="{{ route('orders.cart.set-customer') }}" method="POST" class="flex gap-2">
+                <form action="{{ route('orders.cart.set-customer') }}" method="POST">
                     @csrf
-                    <select name="customer_id" required class="flex-1 border border-gray-300 rounded-lg px-3 py-2
-                    onchange="this.form.submit()">
+                    <select name="customer_id" required onchange="this.form.submit()"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2">
                         <option value="">Select a customer...</option>
                         @foreach ($customers as $c)
                             <option value="{{ $c->id }}">{{ $c->name }}</option>
                         @endforeach
                     </select>
-                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">Select</button>
                 </form>
                 <p class="text-sm text-gray-400 mt-2">
                     No customer yet? <a href="{{ route('customers.create') }}" class="text-indigo-600 hover:underline">Add one first</a>.
